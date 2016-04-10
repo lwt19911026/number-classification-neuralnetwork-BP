@@ -9,5 +9,13 @@ caution:
 5: At input layer, numbers of node are 28 * 28 = 784(width * height).
 6: At hidden layer, the suitable numbers of node are unknown. (Current use is 100).
 7: At output layer, numbers of node are 10 for 10 numbers.
+7.5: Tricks: constantly-descending η , momentum , randomshuffled input data, random initialed bias.
+
 
 *8: training data and test data are stored in Binary and the MSB first. Intel processors users need to convert the integers.
+
+9: current accuracy is 90-91.
+10: Need to be done:
+         predict function.
+         accuracy optimized.
+         
