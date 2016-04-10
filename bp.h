@@ -30,8 +30,8 @@ using namespace std;
 #define num_node_hidden   120 //hidden layer = 100
 #define num_node_output   10  //output layer = l
 
-#define nieta_i2h_bp         0.1//n1
-#define nieta_h2o_bp         0.08	 //n2 ni:n2 = sqrt(input):sqrt(hidden)
+#define ita_i2h_bp         0.1//n1
+#define ita_h2o_bp         0.08	 //n2 ni:n2 = sqrt(input):sqrt(hidden)
 #define tao               0.01 // fot tao
 #define alpha_bp             0.9 //momoent
 #define mem_t                0.6
@@ -54,7 +54,7 @@ using namespace std;
 class bp
 {
 public:
-    bp(){data_label_train =nullptr; data_input_train = nullptr; data_input_test = nullptr; data_label_test =nullptr; nieta_h2o = nieta_h2o_bp; nieta_i2h = nieta_i2h_bp;alpha = alpha_bp;};
+    bp(){data_label_train =nullptr; data_input_train = nullptr; data_input_test = nullptr; data_label_test =nullptr; ita_h2o = ita_h2o_bp; ita_i2h = ita_i2h_bp;alpha = alpha_bp;};
     ~bp()
     {
         delete []data_input_train;
@@ -79,8 +79,8 @@ private:
     int* data_label_train;
     int* data_label_test;
     
-    float nieta_i2h;
-    float nieta_h2o;
+    float ita_i2h;
+    float ita_h2o;
     float alpha;
     
     //2 weight arrays
@@ -469,14 +469,14 @@ void bp::updateOutputLayer() //data for labels
     {
         for (int j = 0 ; j < num_node_hidden;j++)//update every w[j][i]
         {
-            float temp = alpha * weightH2O_m[j][i] + nieta_h2o * deltaO[i] * output_hidden[j];
+            float temp = alpha * weightH2O_m[j][i] + ita_h2o * deltaO[i] * output_hidden[j];
             
             weightH2O[j][i] = weightH2O[j][i] + temp ;
             weightH2O_m[j][i] = temp;
             
             
         }
-        float temp = alpha * thresholdO_m[i] + nieta_h2o * deltaO[i];
+        float temp = alpha * thresholdO_m[i] + ita_h2o * deltaO[i];
         thresholdO[i] = thresholdO[i] + temp;
         thresholdO_m[i] = temp;
     }
@@ -490,13 +490,13 @@ void bp::updateOutputLayerWithoutMem()
         {
             //float temp = weightH2O[j][i];
             
-            weightH2O[j][i] = weightH2O[j][i]  + nieta_h2o * deltaO[i] * output_hidden[j];
+            weightH2O[j][i] = weightH2O[j][i]  + ita_h2o * deltaO[i] * output_hidden[j];
            // weightH2O_m[j][i] = temp;
             
             
         }
         //float temp = thresholdO[i];
-        thresholdO[i] = thresholdO[i] +  nieta_h2o * deltaO[i];
+        thresholdO[i] = thresholdO[i] +  ita_h2o * deltaO[i];
        // thresholdO_m[i] = temp;
     }
 }
@@ -522,12 +522,12 @@ void bp::updateHiddenLayer(const int* data)//data for input
     {
         for (int j = 0; j < num_node_input;j++)
         {
-            float temp = alpha * weightI2H_m[j][i]+nieta_i2h * deltaH[i] * data[j];
+            float temp = alpha * weightI2H_m[j][i]+ita_i2h * deltaH[i] * data[j];
             
             weightI2H[j][i] = weightI2H[j][i] + temp ;
            weightI2H_m[j][i] = temp;
         }
-        float temp = alpha * thresholdH_m[i] +nieta_i2h * deltaH[i];
+        float temp = alpha * thresholdH_m[i] +ita_i2h * deltaH[i];
         thresholdH[i] = thresholdH[i] + temp;
         thresholdH_m[i] = temp;
     }
@@ -550,11 +550,11 @@ void bp::updateHiddenLayerWithoutMem(const int *data)
         for (int j = 0; j < num_node_input;j++)
         {
             //float temp = weightI2H[j][i];
-            weightI2H[j][i] = weightI2H[j][i] +nieta_i2h * deltaH[i] * data[j];
+            weightI2H[j][i] = weightI2H[j][i] +ita_i2h * deltaH[i] * data[j];
            // weightI2H_m[j][i] = temp;
         }
        // float temp = thresholdH[i];
-        thresholdH[i] = thresholdH[i]  +nieta_i2h * deltaH[i];
+        thresholdH[i] = thresholdH[i]  +ita_i2h * deltaH[i];
        // thresholdH_m[i] = temp;
     }
 }
@@ -685,8 +685,8 @@ void bp::train(const char* file_name)
             }
         }
         
-        nieta_i2h = backFire(nieta_i2h_bp, rounds);
-        nieta_h2o = backFire(nieta_h2o_bp, rounds);
+        ita_i2h = backFire(ita_i2h_bp, rounds);
+        ita_h2o = backFire(ita_h2o_bp, rounds);
         alpha = backFire(alpha_bp, rounds);
         
         
