@@ -33,7 +33,7 @@ using namespace std;
 #define ita_i2h_bp         0.1//n1
 #define ita_h2o_bp         0.08	 //n2 ni:n2 = sqrt(input):sqrt(hidden)
 #define tao               0.01 // fot tao
-#define alpha_bp             0.9 //momoent
+#define alpha_bp             0.09 //momoent
 #define mem_t                0.6
 
 #define patterns_train_BP   60000 //训练模式对数(总数)
@@ -70,6 +70,7 @@ public:
     void train(const char* file_name);
     
     //test_fun
+    int predict(const int * data, int width,int height);
     
     
 private:
@@ -138,7 +139,7 @@ protected:   //test than change to protected
     
     //train functions
     float test();   //return accuracy
-    
+    float test2(const int* data);
 };
 
 int myRand(int i)
@@ -191,7 +192,7 @@ static void load_mnist_images(string file_name, int* data)
                 unsigned char cur = 0; //read by binary
                 file.read((char*)&cur, sizeof(cur));
                
-                /*
+                
                 if (cur > 128)
                 {
                     data[i * num_node_input + j * num_of_rows + q] = 1;
@@ -202,8 +203,8 @@ static void load_mnist_images(string file_name, int* data)
                     data[i * num_node_input + j * num_of_rows + q] = 0;
                 
                 }
-                 */
-                data[i * num_node_input + j * num_of_rows + q] = cur - 128;
+                
+               // data[i * num_node_input + j * num_of_rows + q] = (cur - 128);
             }
         }
     }
@@ -617,10 +618,13 @@ void bp::train(const char* file_name)
 {
     srand((unsigned)time(NULL));
     
+    readModel(file_name);
+    
     
     int rounds = 1;
     while (rounds <= iterations_BP)
     {
+        float error_rate = 0.0;
         int input_pos[patterns_train_BP];
         for (int i =0; i<patterns_train_BP;i++)
         {
@@ -661,6 +665,11 @@ void bp::train(const char* file_name)
             calculateOutputError(label);
             updateHiddenLayer(data2);
             updateOutputLayer();
+                
+                int* label2 = data_label_train + input_pos[i] * num_node_output;
+                float err = test2(label2);
+                
+                error_rate += err;
             
         
             }
@@ -682,8 +691,15 @@ void bp::train(const char* file_name)
                 updateOutputLayerWithoutMem();
                 
                 
+                int* label2 = data_label_train + input_pos[i] * num_node_output;
+                float err = test2(label2);
+                
+                error_rate += err;
+                
+                
             }
         }
+       
         
         ita_i2h = backFire(ita_i2h_bp, rounds);
         ita_h2o = backFire(ita_h2o_bp, rounds);
@@ -692,11 +708,13 @@ void bp::train(const char* file_name)
         
         
         
-        if (rounds == iterations_BP)
+        if (rounds % 5 ==0)
         {
             saveModel(file_name);
             cout<<"Model trained!"<<endl;
         }
+        error_rate = sqrt(error_rate / patterns_train_BP);
+        cout<<"Current error : "<<error_rate<<endl;
         cout<<"The "<<rounds<<" ends"<<endl;
         rounds++;
     }
@@ -743,6 +761,39 @@ float bp::test()
     }
     
     return (count_true * 1.0 / patterns_test_BP);
+}
+
+float bp::test2( const int * data)
+{
+    float err = 0.0;
+    for (int i =0;i < num_node_output;i++)
+    {
+        float temp = ((data[i] - output_out[i])) * ((data[i] - output_out[i]));
+        err += temp;
+    }
+    err /=2;
+    return err;
+}
+
+int bp::predict(const int* data, int width, int height)
+{
+    assert(data && width == width_image && height == height_image);
+    
+    const int* p = data;
+    hiddenOutput(p);
+    outputOutput();
+    
+    float max_value = -9999;
+    int ret = -1;
+    
+    for (int i = 0; i < num_node_output; i++) {
+        if (output_out[i] > max_value) {
+            max_value = output_out[i];
+            ret = i;
+        }
+    }
+    
+    return ret;
 }
 
 
