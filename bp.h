@@ -204,7 +204,8 @@ static void load_mnist_images(string file_name, int* data)
                 
                 }
                 
-               // data[i * num_node_input + j * num_of_rows + q] = (cur - 128);
+                
+                //data[i * num_node_input + j * num_of_rows + q] =  cur / 255;
             }
         }
     }
@@ -618,7 +619,7 @@ void bp::train(const char* file_name)
 {
     srand((unsigned)time(NULL));
     
-    readModel(file_name);
+    //readModel(file_name);
     
     
     int rounds = 1;
@@ -796,6 +797,34 @@ int bp::predict(const int* data, int width, int height)
     return ret;
 }
 
+int* test_image_input()
+{
+    int *data_input_test = new int[num_node_input * patterns_test_BP];
+    memset(data_input_test, 0, sizeof(int)*num_node_input*patterns_test_BP);
+    
+    int *data_label_test = new int[num_node_output * patterns_test_BP];
+    memset(data_label_test,0, sizeof(int)*num_node_output * patterns_test_BP);
+    
+    string fileInputTest = "/Users/Tobias_Lu/Documents/data/mnist/t10k-images.idx3-ubyte";
+    string fileLabelTest ="/Users/Tobias_Lu/Documents/data/mnist/t10k-labels.idx1-ubyte";
+    
+    load_mnist_images(fileInputTest, data_input_test);
+    load_mnist_labels(fileLabelTest, data_label_test);
+    
+    
+    for (int i = 784; i< 784 * 2;i++)
+    {
+        cout<<data_input_test[i]<<" ";
+        if ((i+1) % 28 ==0)
+        {
+            cout<<endl;
+        }
+    }
+    cout<<data_label_test[7]<<endl;;
+    
+    return data_input_test;
+    
+}
 
 
 
